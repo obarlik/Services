@@ -12,7 +12,10 @@ namespace SecurityModel
         }
 
         public string UserGroupName { get; set; }
+
         public string Description { get; set; }
+
+        public bool IsEnabled { get; set; }
 
         public ICollection<User> Users { get; }
         public ICollection<Role> Roles { get; }
@@ -21,8 +24,8 @@ namespace SecurityModel
         public override bool Equals(object obj)
         {
             return UserGroupName.Equals(
-                obj.ToString(),
-                StringComparison.InvariantCultureIgnoreCase);
+                    obj.ToString(),
+                    StringComparison.InvariantCultureIgnoreCase);
         }
 
 

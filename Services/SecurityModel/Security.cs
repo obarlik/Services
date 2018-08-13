@@ -11,7 +11,13 @@ namespace SecurityModel
         }
 
         
-        public IEnumerable<Role> Roles { get; protected set; }
+        public ICollection<User> Users { get; }
+
+        public ICollection<Role> Roles { get; }
+        
+        public ICollection<UserGroup> UserGroups { get; }
+
+        public ICollection<SecuredModule> SecuredModules { get; }
 
 
         /// <summary>
@@ -38,5 +44,7 @@ namespace SecurityModel
                 new UserSession(user) :
                 null;
         }
+
+
     }
 }

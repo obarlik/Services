@@ -19,12 +19,21 @@ namespace SecurityModel
 
         public string Description { get; set; }
 
+        public bool IsEnabled { get; set; }
+
+
+        public ICollection<SecuredModule> Modules { get; set; }
+
+        public ICollection<SecuredAction> Actions { get; set; }
+
+        public ICollection<Role> Roles { get; set; }
+
 
         public override bool Equals(object obj)
         {
             return PermissionCode.Equals(
-                obj.ToString(), 
-                StringComparison.InvariantCultureIgnoreCase);
+                    obj.ToString(), 
+                    StringComparison.InvariantCultureIgnoreCase);
         }
 
 
@@ -66,16 +75,13 @@ namespace SecurityModel
                     .Roles
                     .Where(r => r & PermissionCode)
                     .SelectMany(r => 
-                        r.UserGroups.SelectMany(g => 
-                            g.Users.Select(u => 
-                                new PermissionUsage()
-                                {
-                                    User = u,
-                                    UserGroup = g,
-                                    Role = r,
-                                    Permission = this
-                                })));
+                        r.Usage.Select(u =>
+                        {
+                            u.Permission = this;
+                            return u;
+                        }));
             }
         }
+
     }
 }

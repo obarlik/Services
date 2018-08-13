@@ -8,20 +8,18 @@ namespace SecurityModel
     {
         public UserSession()
         {
-            LoginTime = DateTime.UtcNow;
         }
 
 
-        public UserSession(User user):this()
+        public UserSession(User user) : this()
         {
             User = user;
+            LoginTime = DateTime.UtcNow;
         }
 
 
         public User User { get; set; }
 
         public DateTime LoginTime { get; set; }
-
-
     }
 }

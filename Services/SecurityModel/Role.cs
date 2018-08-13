@@ -12,8 +12,15 @@ namespace SecurityModel
         }
 
         public string RoleName { get; set; }
+
         public string Description { get; set; }
-        
+
+        public bool IsEnabled { get; set; }
+
+
+        /// <summary>
+        /// Gets a collection of permissions given to this role
+        /// </summary>
         public ICollection<Permission> Permissions { get; }
 
 
@@ -32,8 +39,8 @@ namespace SecurityModel
         public override bool Equals(object obj)
         {
             return RoleName.Equals(
-                obj.ToString(), 
-                StringComparison.InvariantCultureIgnoreCase);
+                    obj.ToString(), 
+                    StringComparison.InvariantCultureIgnoreCase);
         }
 
 
@@ -67,5 +74,27 @@ namespace SecurityModel
             return role != null
                 && role.HasPermission(permissionCode);
         }
+
+
+        /// <summary>
+        /// Returns permission usage info
+        /// </summary>
+        /// <param name="permissionCode"></param>
+        /// <returns></returns>
+        public IEnumerable<PermissionUsage> Usage
+        {
+            get
+            {
+                return UserGroups.SelectMany(g =>
+                        g.Users.Select(u =>
+                            new PermissionUsage()
+                            {
+                                User = u,
+                                UserGroup = g,
+                                Role = this
+                            }));
+            }
+        }
+
     }
 }
