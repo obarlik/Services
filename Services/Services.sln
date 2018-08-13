@@ -5,9 +5,11 @@ VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Security", "Security", "{487EC4BA-66E8-4352-ACD8-C269791D5CD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authentication", "Authentication\Authentication.csproj", "{A9398604-A948-4CED-BFEB-87952E0BA392}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authentication", "Authentication\Authentication.csproj", "{A9398604-A948-4CED-BFEB-87952E0BA392}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityModel", "SecurityModel\SecurityModel.csproj", "{498180C6-9E31-4200-877F-D8C1DE169F77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityModel", "SecurityModel\SecurityModel.csproj", "{498180C6-9E31-4200-877F-D8C1DE169F77}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Utilities", "Services.Utilities\Services.Utilities.csproj", "{1FBB160A-44B7-4AF3-BB38-A9674FFC11AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +25,10 @@ Global
 		{498180C6-9E31-4200-877F-D8C1DE169F77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{498180C6-9E31-4200-877F-D8C1DE169F77}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{498180C6-9E31-4200-877F-D8C1DE169F77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FBB160A-44B7-4AF3-BB38-A9674FFC11AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FBB160A-44B7-4AF3-BB38-A9674FFC11AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FBB160A-44B7-4AF3-BB38-A9674FFC11AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FBB160A-44B7-4AF3-BB38-A9674FFC11AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

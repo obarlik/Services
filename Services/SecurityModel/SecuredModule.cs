@@ -20,5 +20,14 @@ namespace SecurityModel
         public bool IsEnabled { get; set; }
                 
         public ICollection<SecuredAction> Actions { get; }
+
+
+        // Checks user permission for module execution
+        public bool CheckUserPermission(User user)
+        {
+            return IsEnabled
+                 && (Permission == null
+                  || user.HasPermission(Permission.PermissionCode));
+        }
     }
 }

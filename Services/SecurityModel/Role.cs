@@ -32,7 +32,8 @@ namespace SecurityModel
 
         public bool HasPermission(string permissionCode)
         {
-            return Permissions.Any(p => p == permissionCode);
+            return IsEnabled
+                && Permissions.Any(p => p == permissionCode);
         }
 
 
@@ -66,34 +67,6 @@ namespace SecurityModel
         public static bool operator !=(Role role, string roleName)
         {
             return !(role == roleName);
-        }
-
-
-        public static bool operator &(Role role, string permissionCode)
-        {
-            return role != null
-                && role.HasPermission(permissionCode);
-        }
-
-
-        /// <summary>
-        /// Returns permission usage info
-        /// </summary>
-        /// <param name="permissionCode"></param>
-        /// <returns></returns>
-        public IEnumerable<PermissionUsage> Usage
-        {
-            get
-            {
-                return UserGroups.SelectMany(g =>
-                        g.Users.Select(u =>
-                            new PermissionUsage()
-                            {
-                                User = u,
-                                UserGroup = g,
-                                Role = this
-                            }));
-            }
         }
 
     }

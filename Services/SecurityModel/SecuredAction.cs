@@ -19,5 +19,13 @@ namespace SecurityModel
         public bool IsEnabled { get; set; }
 
         public Permission Permission { get; set; }
+
+
+        public bool CheckUserPermission(User user)
+        {
+            return IsEnabled
+                && (Permission == null
+                 || user.HasPermission(Permission.PermissionCode));
+        }
     }
 }

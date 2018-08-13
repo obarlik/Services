@@ -67,19 +67,18 @@ namespace SecurityModel
         /// </summary>
         /// <param name="permissionCode"></param>
         /// <returns></returns>
-        public IEnumerable<PermissionUsage> Usage
+        public IEnumerable<User> Users
         {
             get
             {
-                return SecuritySystem.Instance
-                    .Roles
-                    .Where(r => r & PermissionCode)
-                    .SelectMany(r => 
-                        r.Usage.Select(u =>
-                        {
-                            u.Permission = this;
-                            return u;
-                        }));
+                return Roles
+                       .Where(r => r.IsEnabled)
+                       .SelectMany(r =>
+                            r.UserGroups
+                            .Where(g => g.IsEnabled)
+                            .SelectMany(g => 
+                                g.Users
+                                .Where(u => u.IsEnabled)));
             }
         }
 

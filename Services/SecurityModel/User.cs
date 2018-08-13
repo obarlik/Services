@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using Services.Utilities;
 
 namespace SecurityModel
 {
@@ -81,86 +82,104 @@ namespace SecurityModel
         }
 
 
-        Dictionary<string, bool> _ActionPermissions;
+        DictionaryCache<bool> _ModulePermissions;
+        DictionaryCache<bool> _ActionPermissions;
+
+        
+        /// <summary>
+        /// Check if user has permisson for a module
+        /// </summary>
+        /// <param name="moduleName"></param>
+        /// <returns></returns>
+        public bool HasPermissionForModule(string moduleName)
+        {
+            // Creating key for action permission
+            var key = string.Format(
+                        "Module[{0}]",
+                        moduleName);
+
+            return this.LockedResult(
+                criteria: 
+                    () => _ModulePermissions == null,
+                locked: 
+                    () => _ModulePermissions = 
+                        new DictionaryCache<bool>(
+                            keyText =>
+                            {
+                                // Searching module by name
+                                var module =
+                                    SecuritySystem.Instance
+                                    .SecuredModules
+                                    .AsParallel()
+                                    .FirstOrDefault(m => m.Name == keyText);
+
+                                // Checking if module exists and this user has permission
+                                return module == null
+                                    || module.CheckUserPermission(this);
+                            }),
+                unlocked: 
+                    () => _ModulePermissions)[key];          
+        }
+
 
 
         /// <summary>
-        /// Check if user has permisson for a module or module's action
+        /// Check if user has permisson for a module's action
         /// </summary>
         /// <param name="moduleName"></param>
         /// <param name="actionName"></param>
         /// <returns></returns>
-        public bool HasPermissionForAction(string moduleName, string actionName = null)
+        public bool HasPermissionForAction(string moduleName, string actionName)
         {
             // Creating key for action permission
             var key = string.Format(
-                        "Action[{0}{1}]",
+                        "Action[{0}.{1}]",
                         moduleName,
-                        actionName == null ?
-                            "" :
-                            ("." + actionName));
+                        actionName);
 
-            // Creating action permission cache if not exists
-            if (_ActionPermissions == null)
-            {
-                lock (this)
-                {
-                    if (_ActionPermissions == null)
-                        _ActionPermissions = new Dictionary<string, bool>();
-                }
-            }
+            return this.LockedResult(
+                criteria: 
+                    () => _ActionPermissions == null,
+                locked: 
+                    () => _ActionPermissions =
+                        new DictionaryCache<bool>(
+                            keyText =>
+                            {
+                                // Checking if this user has permission for module
+                                var result = HasPermissionForModule(moduleName);
 
+                                // If no permission for module then no permission for action too
+                                if (!result)
+                                    return false;
 
-            bool result;
+                                // Now we can check for action permissions
 
-            // Trying to get action permission from cache if exists
-            if (_ActionPermissions.TryGetValue(key, out result))
-                return result;
+                                // Searching module by name
+                                var module =
+                                    SecuritySystem.Instance
+                                    .SecuredModules
+                                    .AsParallel()
+                                    .FirstOrDefault(m => m.Name == moduleName);
 
-            lock (_ActionPermissions)
-            {
-                if (_ActionPermissions.TryGetValue(key, out result))
-                    return result;
-                
-                // We need to update cache for action permission
+                                // If module is null assume has permissions
+                                if (module == null)
+                                    return true;
 
-                // Searching module by name
-                var module =
-                    SecuritySystem.Instance
-                    .SecuredModules
-                    .AsParallel()
-                    .FirstOrDefault(m => m.Name == moduleName);
+                                // Searching action by name
+                                var action =
+                                    module.Actions
+                                    .AsParallel()
+                                    .FirstOrDefault(a => a.Name == actionName);
 
-                // Checking if module exists and has permission
-                result = module == null
-                      || (module.IsEnabled
-                       && (module.Permission == null
-                        || HasPermission(module.Permission.PermissionCode)));
+                                // Checking if action exists and this user has permission
+                                result = action == null
+                                      || action.CheckUserPermission(this);
 
-                if (result 
-                 && module != null 
-                 && actionName != null)
-                {
-                    // If module permission check passes
-                    // we need to check action permissions too
+                                return result;
+                            }),
 
-                    // Searching action by name
-                    var action =
-                        module.Actions
-                        .AsParallel()
-                        .FirstOrDefault(a => a.Name == actionName);
-
-                    // Checking if action exists and has permission
-                    result = action == null
-                          || (action.IsEnabled 
-                           && (action.Permission == null 
-                            || HasPermission(action.Permission.PermissionCode)));
-                }
-
-                _ActionPermissions[key] = result;
-
-                return result;
-            }
+                    unlocked: 
+                        () => _ActionPermissions)[key];
         }
 
 
@@ -172,11 +191,16 @@ namespace SecurityModel
         /// <returns></returns>
         public HashSet<string> GetPermissionsCodes()
         {
-            return _PermissionCodes ??
-                  (_PermissionCodes =
-                   new HashSet<string>(
-                       GetPermissions()
-                       .Select(p => p.PermissionCode)));
+            return this.LockedResult(
+                criteria: 
+                    () => _PermissionCodes == null,
+                locked: 
+                    () => _PermissionCodes =
+                        new HashSet<string>(
+                           GetPermissions()
+                           .Select(p => p.PermissionCode)),
+                unlocked: 
+                    () => _PermissionCodes);
         }
         
 
@@ -188,22 +212,28 @@ namespace SecurityModel
         /// <returns></returns>
         public IEnumerable<Permission> GetPermissions()
         {
-            return _Permissions ??
-                  (_Permissions =
-                       UserGroups
-                       .Where(g => g.IsEnabled)
-                       .SelectMany(u =>
+            return this.LockedResult(
+                criteria: 
+                    () => _Permissions == null,
+                locked: 
+                    () => _Permissions =
+                        UserGroups
+                        .Where(g => g.IsEnabled)
+                        .SelectMany(u =>
                             u.Roles
                             .Where(r => r.IsEnabled)
                             .SelectMany(r =>
                                 r.Permissions
                                 .Where(p => p.IsEnabled)))
-                       .ToList());
+                        .ToList(),
+                unlocked: 
+                    () => _Permissions);
         }
 
 
         public static bool operator ==(User user, string userName)
         {
+            // Assume comparison of user's name with the string
             return user != null
                 && user.UserName.Equals(userName, StringComparison.InvariantCultureIgnoreCase);
         }

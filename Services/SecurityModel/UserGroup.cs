@@ -23,7 +23,8 @@ namespace SecurityModel
 
         public override bool Equals(object obj)
         {
-            return UserGroupName.Equals(
+            return IsEnabled
+                && UserGroupName.Equals(
                     obj.ToString(),
                     StringComparison.InvariantCultureIgnoreCase);
         }
@@ -63,7 +64,7 @@ namespace SecurityModel
 
         public bool HasPermission(string permissionCode)
         {
-            return Roles.Any(r => r & permissionCode);
+            return Roles.Any(r => r.HasPermission(permissionCode));
         }
     }
 }

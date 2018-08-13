@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Services.Utilities\Services.Utilities.csproj" />
+  </ItemGroup>
+
 </Project>

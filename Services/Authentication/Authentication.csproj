@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SecurityModel\SecurityModel.csproj" />
+    <ProjectReference Include="..\Services.Utilities\Services.Utilities.csproj" />
   </ItemGroup>
 
 </Project>
