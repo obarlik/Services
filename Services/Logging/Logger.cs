@@ -105,7 +105,7 @@ namespace Logging
             await Task.Run(() =>
                 LogOutput(
                     new LogData(
-                        DateTime.Now,
+                        DateTime.UtcNow,
                         logType,
                         category,
                         message)));            
