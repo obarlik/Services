@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -18,15 +19,27 @@ namespace Logging
         {
             try
             {
-                Log(LogType.Trace, "Action", string.Format("Running action '{0}'", actionName));
+                Log(LogType.Trace, 
+                    "Action", 
+                    string.Format(
+                        "Entering action '{0}'...", 
+                        actionName));
+
                 action();
-                Log(LogType.Trace, "Action", string.Format("Returning from action '{0}'", actionName));
+
+                Log(LogType.Trace, 
+                    "Action", 
+                    string.Format(
+                        "Returned from action '{0}'.", 
+                        actionName));
             }
             catch (Exception ex)
             {
                 LogError(
                     "Action",
-                    string.Format("Error while running action '{0}'.", actionName), 
+                    string.Format(
+                        "Error while running action '{0}'!", 
+                        actionName), 
                     ex);
 
                 throw;
@@ -42,21 +55,17 @@ namespace Logging
             {
                 Log(LogType.Trace, 
                     "Function", 
-                    string.Format("Running function '{0}'...", 
-                    functionName));
+                    string.Format(
+                        "Entering function '{0}'...", 
+                        functionName));
 
                 var result = function();
 
                 Log(LogType.Trace,
                     "Function",
                     string.Format(
-                        "Returned from function '{0}' with result {1}.",
-                        functionName,
-                        result == null ?
-                            "NULL" :
-                            string.Format(
-                                "'{0}'", 
-                                result.ToString())));
+                        "Returned from function '{0}'.",
+                        functionName));
 
                 return result;
             }
@@ -85,7 +94,7 @@ namespace Logging
         }
 
 
-        public LogType LogLevel = LogType.Error; 
+        public LogType LogLevel = LogType.Error;
 
 
         public async void Log(LogType logType, string category, string message)
@@ -93,17 +102,16 @@ namespace Logging
             if (logType > LogLevel)
                 return;
 
-            var time = DateTime.Now;
-
             await Task.Run(() =>
-            {
-
-                var logData = new LogData(time, logType, category, message);
-                LogOutput(logData);
-            });
+                LogOutput(
+                    new LogData(
+                        DateTime.Now,
+                        logType,
+                        category,
+                        message)));            
         }
 
-
+        
         protected virtual void LogOutput(LogData logData)
         {
             Debug.WriteLine(
